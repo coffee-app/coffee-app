@@ -1,0 +1,521 @@
+
+html
+{
+	cursor: default;
+	overflow: auto;
+}
+
+body
+{
+    margin: 0px;
+    padding: 0px;
+	overflow: auto;
+
+    font-family: Palatino, Cambria, Times New Roman, serif;
+
+    background: #fff;
+}
+
+a
+{
+	text-decoration: none;
+	color: #000;
+}
+
+img
+{
+	border: 0px;
+}
+
+input[type=text]
+{
+	width: 100%;
+    font-family: Palatino, Cambria, Times New Roman, serif;
+	font-size: 28pt;
+	font-weight: bold;
+	border: inset #c0c0c0 1px;
+}
+
+td
+{
+	vertical-align: top;
+}
+
+
+
+
+h1
+{
+    margin-top: 40px;
+    margin-bottom: 15px;
+    text-align: center;
+
+    font-size: 20pt;
+    font-weight: bold;
+    font-variant: small-caps;
+
+    color: #7592c7;
+}
+
+h2
+{
+    margin-top: 20px;
+    margin-bottom: 5px;
+
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+p
+{
+    margin: 0px;
+
+    font-size: 12pt;
+    text-align: justify;
+    line-height: 1.5;
+}
+
+.emph
+{
+    font-weight: bold;
+    font-style: italic;
+}
+
+.emph_blue
+{
+    font-weight: bold;
+    font-style: italic;
+    color: #7592c7;
+}
+
+ul
+{
+    font-size: 12pt;
+    line-height: 1.5;
+}
+
+li
+{
+    font-size: 12pt;
+    line-height: 1.5;
+}
+
+
+
+
+
+.icon_container
+{
+	display: table;
+}
+
+#bookingUserOptions
+{
+	overflow: hidden;
+}
+
+.icon_container div
+{
+	cursor: pointer;
+
+    position: relative;
+    margin: 10px;
+
+    float: left;
+    text-align: center;
+
+    border-radius: 16px;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+
+    border: solid #fff 1px;
+}
+
+.icon_container div img
+{
+	margin-top: 5px;
+    width: 96px;
+    height: 96px;
+
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+#bookingUserOptions div img
+{
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.icon_container div div
+{
+    position: relative;
+    margin: 0px;
+    padding: 5px 0px 5px 0px;
+
+    float: none;
+    text-align: center;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-size: 14pt;
+    font-weight: bold;
+
+    border: 0px;
+}
+
+.small_icons div img
+{
+	width:	64px;
+	height:	64px;
+}
+.small_icons div div
+{
+	font-size: 11pt;	
+}
+
+
+
+
+.list_container
+{
+	display: table;
+	margin: 0 auto;
+}
+
+.list_container div
+{
+	cursor: pointer;
+
+    display: list-item;
+
+    position: relative;
+    margin: 10px;
+    padding: 10px;
+
+    text-align: left;
+    font-size: 32px;
+
+    border-radius: 16px;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+}
+
+
+
+
+#statisticsCoffee #title
+{
+	width: 100%;
+    text-align: center;
+    margin: 10px;
+
+    font-size: 32px;
+}
+
+
+
+
+
+.barchart
+{
+    display: table;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    min-width: 500px;
+}
+
+.barchart .title
+{
+    display: table-caption;
+    text-align: center;
+    margin: 10px;
+
+    font-size: 32px;
+}
+
+.barchart .row, .barchart .lastrow
+{
+    display: table-row;
+    min-width: 500px;
+}
+
+.barchart .row div
+{
+    border-bottom: solid #e0e0e0 1px;
+	white-space: nowrap;
+}
+
+.barchart .label
+{
+    display: table-cell;
+    vertical-align: middle;
+
+    padding-right: 10px;
+    font-size: 20px;
+}
+
+.barchart .bar
+{
+    margin: 2px;
+    height: 24px;
+    vertical-align: middle;
+
+    background-color: #e0e0e0;
+    border: solid #c0c0c0 1px;
+}
+
+.barchart .total
+{
+    display: table-cell;
+    text-align: right;
+    font-weight: bold;
+}
+
+.barchart .bardata
+{
+    white-space: nowrap;
+    display: table-cell;
+    vertical-align: middle;
+
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+
+
+.user_info
+{
+	position: relative;
+	width: 30%;
+
+	float: left;
+
+	text-align: center;
+}
+
+.user_info div table
+{
+	position: relative;
+	width: 256px;
+
+	margin: auto;
+
+	font-size: 14pt;
+}
+
+.user_info div img
+{
+	width: 256px;
+	height: 256px;
+}
+
+.user_info div div
+{
+    text-align: center;
+
+    font-size: 14pt;
+    font-weight: bold;
+
+    border: 0px;
+}
+
+
+
+.user_details
+{
+	position: relative;
+	width: 30%;
+
+	float: left;
+}
+
+.user_options
+{
+	position: relative;
+	width: 33%;
+
+	float: right;
+}
+
+
+
+
+
+.bookingUserDetails_LastPayment
+{
+	margin-top: 30px;	
+	width: 100%;
+}
+
+.bookingUserDetails_LastPayment th
+{
+	text-align: left;
+	font-size: 12pt;
+}
+
+
+
+.user_options input[type=checkbox]
+{
+	width: 18pt;
+	height: 18pt;
+	
+	cursor: pointer;
+	vertical-align: baseline;
+	margin-left: 18pt;
+}
+
+.user_options label
+{
+	cursor: pointer;
+    font-family: Palatino, Cambria, Times New Roman, serif;
+	font-size: 18pt;
+}
+
+
+
+.listing
+{
+	width: 100%;
+	font-weight: normal;
+}
+
+.listing th, .listing_header
+{
+	text-align: left;
+	font-size: 14pt;
+	font-weight: bold;
+	border-bottom: dashed #c0c0c0 1px;
+}
+
+.listing td
+{
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+
+
+
+.numblock
+{
+	width: 345px;
+	float: right;
+}
+
+.numblock td
+{
+	width: 80px;
+	line-height: 80px;
+}
+
+.button
+{
+	cursor: pointer;
+
+	font-size: 32pt;
+	font-weight: bold;
+	text-align: center;
+
+	border: outset #c0c0c0 1px;
+	background: #efefef;
+}
+
+
+
+
+.price
+{
+	font-size: 10pt;
+}
+
+
+
+
+
+
+#menu
+{
+    position: relative;
+    top: 0px;
+    left: 0px;
+
+    width: 100%;
+    padding-bottom: 10px;
+
+    display: table;
+
+    background: #fafafa;
+    border-bottom: solid #c0c0c0 2px;
+}
+
+#logo
+{
+    width: 148px;
+    height: 148px;
+
+    background: #fff url (Content/logo.jpg) no-repeat center center;
+
+    display: table-cell;
+    float: left;
+}
+
+#time
+{
+    display: table-cell;
+
+    font-size: 72pt;
+    color: #c0c0c0;
+    vertical-align: middle;
+}
+
+#content
+{
+    position: relative;
+    overflow: hidden;
+}
+
+.content_page
+{
+    position: relative;
+    margin: 20px;
+}
+
+#overlay
+{
+	position: absolute;
+	z-index: 9999;
+
+	margin: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+#popup
+{
+	position: absolute;
+	z-index: 99999;
+
+	top: 0px;
+	left: 0px;
+
+	padding: 10px;
+	margin: 0px;
+
+	border: solid #c0c0c0 1px;
+	background: #fff;
+}
+
+#popup table
+{
+	border: 0px;
+	font-size: 18pt;
+}
+
+#popup td
+{
+	padding: 10px 10px 10px 10px;
+	vertical-align: baseline;
+}

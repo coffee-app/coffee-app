@@ -1,0 +1,17 @@
+Requirements:
+  - Internet Explorer 8 (tested with 8.0.6001.18702)
+  - MS Access (tested with MS Access 2007)
+  - flot JavaScript library (http://code.google.com/p/flot/)
+
+Tipps:
+  - change the line beginning with 'cn.Open ("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=' so it points to the correct Access database
+  - on lower-end systems (e.g., an EeePc), these hints may increase performance, especially when many users are active:
+    - use JPG images whenever you do not need alpha channels (the menu icons need alpha channels!)
+    - use images of the exact size displayed to prevent scaling
+      - Content/users: 64x64 pixels
+      - Content/users/large: 256x256 pixels
+      - Content/products: 96x96 pixels
+      - Content/menu: 96x96 pixels
+
+
+The images have been taken from http://www.visualpharm.com/, see Content/Icon-License.txt for the license. Feel free to replace them with your own.

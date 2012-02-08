@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+    <head>
+        <title>Coffee</title>
+		<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="flot/excanvas.min.js"></script><![endif]-->
+		<script language="javascript" type="text/javascript" src="flot/jquery.js"></script>
+		<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+		<script language="javascript" type="text/javascript" src="flot/jquery.flot.selection.js"></script>
+        <script language="JScript" src="coffee.js"></script>
+        <link rel="stylesheet" type="text/css" href="coffee.css"></link>
+    </head>
+
+    <body>
+		<div id="overlay" style="display: none;">
+			<img src="Content/trans.png" width="100%" height="100%" onmousedown="this.parentNode.style.display = 'none';"/>
+			<div id="popup">test</div>
+		</div>
+
+		<div id="menu">
+			<div id="logo"></div>
+			<div class="icon_container" id="menuItemlist"></div>
+			<div id="time">00:00</div>
+		</div>
+	
+		<div id="content">
+			<div class="content_page" id="guidelines" style="display:none;">
+				<h1>Usage Guidelines</h1>
+				
+				<p>
+				Your own guidelines here
+				</p>
+			</div>
+	
+			<div class="content_page" id="booking" style="display:none;">
+				<div class="icon_container small_icons" id="bookingUserlist"></div>
+			</div>
+			<div class="content_page" id="bookingUser" style="display:none;">
+				<div class="user_info" id="bookingUserInfo"></div>
+				<div class="user_details" id="bookingUserDetails"></div>
+				<div class="user_options" id="bookingUserOptions"></div>
+			</div>
+	
+			<div class="content_page" id="payments" style="display:none;">
+				<div class="icon_container small_icons" id="paymentsUserlist"></div>
+			</div>
+			<div class="content_page" id="paymentsUser" style="display:none;">
+				<div class="user_info" id="paymentsUserInfo"></div>
+				<div class="user_details" id="paymentsUserDetails"></div>
+				<div class="user_options" id="paymentsUserOptions"></div>
+			</div>
+	
+			<div class="content_page" id="statistics" style="display:none;">
+				<div class="list_container" id="statisticsList"></div>
+			</div>
+	
+			<div class="content_page" id="statisticsCoffeeYear" style="display:none;"></div>
+			<div class="content_page" id="statisticsCoffeeMonth" style="display:none;"></div>
+			<div class="content_page" id="statisticsCoffee" style="display: none; visibility: hidden;">
+				<div id="title"></div>
+				<div id="graph" style="margin: 0px; width:100%; height:450px; overflow: hidden;"></div>
+				<div id="overview" style="margin: 20px 0px 0px 0px; width:100%; height:50px"></div>
+			</div>
+			<div class="content_page" id="statisticsBalance" style="display:none;"></div>
+	
+	
+			<div class="content_page" id="cleaning" style="display:none;">
+				<div class="icon_container small_icons" id="cleaningUserlist"></div>
+			</div>
+			<div class="content_page" id="cleaningUser" style="display:none;">
+				<div class="user_info" id="cleaningUserInfo"></div>
+				<div class="user_details" id="cleaningUserDetails"></div>
+				<div class="user_options" id="cleaningUserOptions"></div>
+			</div>
+		</div>
+
+    </body>
+</html>
