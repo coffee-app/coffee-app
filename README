@@ -3,6 +3,9 @@ Requirements:
   - MS Access (tested with MS Access 2007)
   - flot JavaScript library (http://code.google.com/p/flot/)
 
+Checkout:
+  - git clone --recursive https://github.com/coffee-app/coffee-app.git
+
 Tipps:
   - change the line beginning with 'cn.Open ("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=' so it points to the correct Access database
   - on lower-end systems (e.g., an EeePc), these hints may increase performance, especially when many users are active:
