@@ -99,6 +99,30 @@ function GetLongDate (d)
     return long_month [dd.getMonth ()] + " " + dd.getDate () + "<superscript>" + suffix + "</superscript>, " + dd.getFullYear ()   ;
 }
 
+function DateToKw (d)
+{
+	var thisDate = new Date (d);
+	var firstWeek = new Date (thisDate.getFullYear (), 0, 4);
+	firstWeek.setDate (firstWeek.getDate () - (firstWeek.getDay () - 1));
+	thisDate.setDate (thisDate.getDate () - (thisDate.getDay () - 1));
+
+	var kw = parseInt ((thisDate.getTime () - firstWeek.getTime ()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+	return kw;
+}
+
+function GetDateFromYearAndKW (yyyy, kw)
+{
+	//	January 4 is always the date where week #1 is in. But we actually
+	//	want the Monday of that week, which may be anything between
+	//	January 1 and January 4.
+	//	To get Monday, we subtract the day-value (Monday=1). To get to the
+	//	Monday of our week, we add 7 times as many days, as we want weeks.
+
+	var firstWeek = new Date (yyyy, 0, 4);
+	firstWeek.setDate (firstWeek.getDate () - (firstWeek.getDay () - 1) + (7 * kw - 7));
+	return firstWeek;
+}
+
 //	see http://javascript.jstruebig.de/javascript/35
 function StripHTML (str, rpl)
 {
@@ -1064,8 +1088,8 @@ function statUserCoffeeWeek_Click (ttl)
 
 
 	//	load data
-	var firstWeek = -1;
-	var lastWeek = -1;
+	var firstWeek = new Date ();
+	var lastWeek = new Date ();
 	var data = [];
 	{
 		var lastUid = -1;
@@ -1075,9 +1099,11 @@ function statUserCoffeeWeek_Click (ttl)
 		rs.Open ("select UID, Year, Week, Count from by_StatCoffeeW", cn);
 		while (!rs.EOF)
 		{
-			lastWeek = parseInt (rs (2));
-			if (firstWeek < 0)
-				firstWeek = lastWeek;
+			thisWeek = GetDateFromYearAndKW (parseInt (rs (1)), parseInt (rs (2)));
+			if (lastWeek < thisWeek)
+				lastWeek = thisWeek;
+			if (firstWeek > thisWeek)
+				firstWeek = thisWeek;
 
 			var thisUid = parseInt (rs (0));
 			if (lastUid < 0)
@@ -1091,14 +1117,7 @@ function statUserCoffeeWeek_Click (ttl)
 				uidWeeks = new Array ();
 			}
 
-			if (lastWeek == 53)
-				lastWeek = 1;
-			if (lastWeek < firstWeek)
-				lastWeek += 52;
-			lastWeek -= firstWeek;
-
-			uidWeeks.push (new Array (lastWeek, parseInt (rs (3))));
-
+			uidWeeks.push (new Array (thisWeek, parseInt (rs (3))));
 			rs.MoveNext ();
 		}
 		rs.Close();
@@ -1110,11 +1129,12 @@ function statUserCoffeeWeek_Click (ttl)
 //t0 = new Date ();
 
 	var options = {
+		xaxis: { mode: "time", tickFormatter: DateToKw, tickSize: [7, "day"] },
 		series: {
 			lines: {show: true}
 		},
 		legend: { backgroundOpacity: 0 },
-		selection: { mode: "x" }
+		selection: { mode: "x" },
 	};
 
 
@@ -1155,7 +1175,7 @@ function statUserCoffeeWeek_Click (ttl)
 	$("#overview").bind("plotunselected", function () {
 		plot = $.plot($("#graph"), data,
 					  $.extend(true, {}, options, {
-						  xaxis: { min: 0, max: lastWeek }
+						  xaxis: { min: firstWeek, max: lastWeek }
 					  }));
 		overview.clearSelection(true);
 	});
