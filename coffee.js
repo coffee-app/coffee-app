@@ -606,6 +606,18 @@ function show_statistics ()
         itm.appendChild (a);
         div.appendChild (itm);
     }
+
+    {
+        var itm = document.createElement('div');
+        var a = document.createElement ('span');
+
+        a.innerText = "Recent cleanings per user";
+        a.setAttribute ("onclick", "statUserCleanings_Click ('" + a.innerText + "', 'statisticsCleanings');");
+        a.setAttribute ("hidefocus", "hidefocus");
+
+        itm.appendChild (a);
+        div.appendChild (itm);
+    }
 }
 
 
@@ -1074,6 +1086,93 @@ function statUserBalance_Click (ttl, page)
     ShowSubpage (page);
 }
 
+function statUserCleanings_Click (ttl, page)
+{
+    var rs = new ActiveXObject("ADODB.Recordset");
+    var lstDone = "";
+    var lstToDo = "";
+    var hasCleanedList = [];
+
+    //  load coffee stats
+    rs.Open ("select * from by_StatClean01", cn);
+    while (!rs.EOF)
+    {
+        var uid = parseInt (rs (0));
+        var user_name = "[Unknown User]"
+        for (var id in users)
+        {
+            if (id == uid)
+            {
+                user_name = users [id] [0];
+                user_name = user_name.replace ("<br />", " ");
+                break;
+            }
+        }
+
+		lstDone += "\
+			<div class='row'>\
+				<div class='label'>" + user_name + "</div>\
+				<div style='display: table-cell; text-align: right;'>" + GetNiceDateAndTime (rs (1)) + "</div>\
+			</div>\
+		";
+
+		hasCleanedList.push (uid);
+		rs.MoveNext ();
+    }
+    rs.Close ();
+
+    rs.Open ("select * from by_StatCoffee1y LEFT JOIN Users ON by_StatCoffee1y.UID = Users.ID where Users.MUST_CLEAN = True", cn);
+    while (!rs.EOF)
+	{
+        var uid = parseInt (rs (0));
+        var cnt = parseInt (rs (1));
+
+		if (cnt > 50)
+		{
+			var hasCleaned = false;
+			for (var id in hasCleanedList)
+			{
+				if (hasCleanedList [id] == uid)
+				{
+					hasCleaned = true;
+					break;
+				}
+			}
+
+			if (!hasCleaned)
+			{
+				var user_name = "[Unknown User]"
+				for (var id in users)
+				{
+					if (id == uid)
+					{
+						user_name = users [id] [0];
+						user_name = user_name.replace ("<br />", " ");
+						break;
+					}
+				}
+				
+				lstToDo += "\
+					<div class='row'>\
+						<div class='label'>" + user_name + "</div>\
+						<div style='display: table-cell; text-align: right;'>never</div>\
+					</div>\
+				";
+			}
+		}
+		rs.MoveNext ();
+	}
+    rs.Close ();
+
+    document.getElementById (page).innerHTML = "\
+					<div class='barchart'><div class='title'>" + ttl + "</div>\
+						" + lstToDo + "\
+						" + lstDone + "\
+					</div>\
+				";
+    ShowSubpage (page);
+}
+
 function statUserCoffeeWeek_Click (ttl)
 {
 //var t0 = new Date();
@@ -1134,7 +1233,7 @@ function statUserCoffeeWeek_Click (ttl)
 			lines: {show: true}
 		},
 		legend: { backgroundOpacity: 0 },
-		selection: { mode: "x" },
+		selection: { mode: "x" }
 	};
 
 
