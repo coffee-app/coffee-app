@@ -11,6 +11,15 @@ pages ["payments"] = Array ("Payments", MENU_ROOT + "coins128.png");
 pages ["statistics"] = Array ("Statistics", MENU_ROOT + "line_chart128.png");
 pages ["cleaning"] = Array ("Maintenance", MENU_ROOT + "service_manager128.png");
 
+var cleaningSteps = [
+	[ "descale", "Descale machine" ],
+	[ "clean brewing unit", "Clean brewing unit" ],
+	[ "clean waste container", "Clean waste container from mold" ],
+	[ "clean drip tray", "Clean drip tray" ],
+	[ "vacuum inside", "Vacuum inside of machine" ],
+	[ "clean outside", "Clean machine body" ]
+];
+
 var currentPage = "";
 var currentSubpage = null;
 var scrolling = false;
@@ -22,6 +31,11 @@ var allowClicks = true;
 var users = Array (
 	//	Index is equal to the UID
     //     Name, Image, Balance, Small Image
+);
+
+var all_users = Array (
+	//	Index is equal to the UID
+    //     Name
 );
 
 var products = Array (
@@ -62,13 +76,13 @@ function GetNiceDateAndTime (d)
     		return Math.round (diff / 60) + " min ago";
     	else
     	{
-    		var h = Math.round (diff / hour);
-    		if (h == 1)
-    			return "1 hour ago";
-    		else
-	    		return h + " hours ago";
-    	}
-    }
+			var h = Math.round (diff / hour);
+			if (h == 1)
+				return "1 hour ago";
+			else
+				return h + " hours ago";
+		}
+	}
     else
     	return GetShortDate (d);
 }
@@ -149,6 +163,17 @@ function UpdateTime ()
 function FormatCurrency (c)
 {
 	return "&euro; " + parseFloat (c).toFixed (2);
+}
+
+function GetUserNameById (uid)
+{
+	for (var id in all_users)
+	{
+		if (id == uid)
+			return all_users [id];
+	}
+
+	return "[Unknown User]";
 }
 
 function ToggleFlag (elem, bit)
@@ -456,6 +481,19 @@ window.onload = function ()
     }
     rs.Close();
 
+	rs.Open ("select ID,First,Last from Users", cn);
+    all_users = new Array ();
+    while (!rs.EOF)
+    {
+    	var user_name = String (rs (1));
+    	if (String (rs(2)) != "")
+    		user_name += " " + rs (2);
+
+        all_users [parseInt (rs (0))] = user_name;
+        rs.MoveNext ();
+    }
+    rs.Close();
+
     //  load active products
 	rs.Open ("select PID, Description, Price, Image from by_ActiveProducts", cn);
     products = new Array ();
@@ -658,11 +696,15 @@ function bookingUserlist_Click (i)
                     ";
 	        }
 	        else
+	        {
+	        	var total_price = 0;
                 while (!rs.EOF)
                 {
                 	var idx = parseInt (rs (0));
                     var name = all_products [idx] [0];
                     var price = FormatCurrency (rs (2));
+
+					total_price += parseFloat (rs (2));
 
                     if (name.indexOf (';') >= 0)
                         name = name.substr (0, name.indexOf (';')) + " (" + name.substr(name.indexOf (';') + 1) + ")";
@@ -675,6 +717,12 @@ function bookingUserlist_Click (i)
 
                     rs.MoveNext ();
                 }
+                str += "\
+                <tr>\
+                    <td><b>Total</b></td><td align='center'></td><td align='right'><b>" + FormatCurrency (parseFloat (total_price).toFixed (2)) + "</b></td><td align='right'></td>\
+                </tr>\
+                    ";
+            }
             rs.Close();
         }
 
@@ -735,6 +783,8 @@ function paymentsUserlist_Click (i)
 
         var have_data = false;
         {
+            var total_payments = 0
+
             //  load payments
 	        rs.Open ("select TIME, AMOUNT from PAYMENTS where UID=" + i, cn);
             while (!rs.EOF)
@@ -745,9 +795,15 @@ function paymentsUserlist_Click (i)
             </tr>\
                 ";
 
+				total_payments += parseFloat (rs (1));
                 have_data = true;
                 rs.MoveNext ();
             }
+            str += "\
+            <tr>\
+                <td><b>Total</b></td><td align='right'><b>" + FormatCurrency (parseFloat (total_payments).toFixed (2)) + "</b></td>\
+            </tr>\
+                ";
             rs.Close();
         }
         if (!have_data)
@@ -783,26 +839,45 @@ function cleaningUserlist_Click (i)
 	    usr_info.firstChild.firstChild.src = users [i] [3];
 
         //  load last cleaning for this user
-        var lclean = "Never";
+        var your_last_clean = "Never";
         rs.Open ("select max(TIME) from Maintenance where UID=" + i, cn);
-        if (!rs.EOF && rs (0).Value != null) lclean = GetShortDate (rs (0));
+        if (!rs.EOF && rs (0).Value != null) your_last_clean = GetShortDate (rs (0));
+        rs.Close ();
+
+        var last_clean = "Never";
+        rs.Open ("select max(TIME) from Maintenance", cn);
+        if (!rs.EOF && rs (0).Value != null) last_clean = GetShortDate (rs (0));
         rs.Close ();
 
         var tbl = document.createElement ("div");
-        tbl.innerHTML = "<table class='listing'><tr><th colspan='2'>&nbsp;</th></tr><tr><td align='left'>Last Cleaning</td><td align='right'>" + lclean+ "</td></tr></table>";
+        tbl.innerHTML = "<table class='listing'><tr><th colspan='2'>&nbsp;</th></tr><tr><td align='left'>Last Cleaning</td><td align='right'>" + last_clean + "</td></tr><tr><td align='left'>Your Last Cleaning</td><td align='right'>" + your_last_clean + "</td></tr></table>";
         usr_info.appendChild (tbl);
     }
 
     {
         var usr_details = document.getElementById ("cleaningUserDetails");
-                
+/*
+        <table class='listing'>\
+            <tr>\
+                <th>Current bonus for cleaning</th>\
+            </tr>\
+            <tr>\
+                <td style='text-align: justify; white-space: normal;'>When descaling, you will receive a bonus <i>for each</i> cleaning step. The amount of this bonus depends on the number of coffees consumed since the last descaling of the machine.</td>\
+            </tr>\
+            <tr style='text-align: right'>\
+                <td>" + FormatCurrency (cleaning_bonus) + "</td>\
+            </tr>\
+        </table>\
+        <br />\
+        <br />\
+*/                
         str = "\
         <table class='listing'>\
             <tr>\
                 <th colspan='4'>Cleanings by you</th>\
             </tr>\
             <tr style='font-weight: bold;'>\
-                <td>Date</td><td align='right'>Amount</td>\
+                <td>Date</td><td align='right'>Steps taken</td>\
             </tr>";
 
         var have_data = false;
@@ -815,16 +890,13 @@ function cleaningUserlist_Click (i)
                 var type = parseInt (rs (0));
                 var str_type = "";
 
-                if ((type & 1) == 1)
-                    str_type = str_type + "descale, ";
-                if ((type & 2) == 2)
-                    str_type = str_type + "clean brewing unit, ";
-                if ((type & 4) == 4)
-                    str_type = str_type + "clean waste container, ";
-                if ((type & 8) == 8)
-                    str_type = str_type + "clean drip tray, ";
-                if ((type & 16) == 16)
-                    str_type = str_type + "vacuum, ";
+				var c = 1;
+				for (var j in cleaningSteps)
+				{
+    	            if ((type & c) == c)
+	                    str_type = str_type + cleaningSteps [j] [0] + ", ";
+					c *= 2;
+				}
 
                 if (str_type == "")
                     str_type = "none";
@@ -833,7 +905,7 @@ function cleaningUserlist_Click (i)
 
                 str += "\
             <tr>\
-                <td nowrap>" + d + "</td><td align='right'>" + str_type + "</td>\
+                <td nowrap>" + d + "</td><td align='right' style='white-space: normal;'>" + str_type + "</td>\
             </tr>\
                 ";
 
@@ -859,19 +931,28 @@ function cleaningUserlist_Click (i)
 
     {
         var usr_options = document.getElementById ("cleaningUserOptions");
-        usr_options.innerHTML = '\
+        var str = '\
             <table class="listing" style="position: relative; width: 300px;" data-flags="0">\
                 <tr><th colspan="2">Cleaning steps</th></tr>\
                 <tr><td colspan="2" style="padding-top: 10px; font-size: 14pt; line-height: 20pt; text-align: justify; white-space: normal;">Please use this check list to mark each step you are undertaking during the cleaning process. When you have finished the whole cleaning procedure, click "Done".</td></tr>\
-                <tr><td colspan="2">&nbsp;</td></tr>\
-                <tr><td><input type="checkbox" id="cleaningUserOption1"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, 1);"></td><td><label for="cleaningUserOption1">Descale machine</label></td></tr>\
-                <tr><td><input type="checkbox" id="cleaningUserOption2"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, 2);"></td><td><label for="cleaningUserOption2">Clean brewing unit</label></td></tr>\
-                <tr><td><input type="checkbox" id="cleaningUserOption3"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, 4);"></td><td><label for="cleaningUserOption3">Clean waste container from mold</label></td></tr>\
-                <tr><td><input type="checkbox" id="cleaningUserOption4"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, 8);"></td><td><label for="cleaningUserOption4">Clean drip tray</label></td></tr>\
-                <tr><td><input type="checkbox" id="cleaningUserOption5"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, 16);"></td><td><label for="cleaningUserOption5">Vacuum inside of machine</label></td></tr>\
+                <tr><td colspan="2">&nbsp;</td></tr>'
+
+		var c = 1;
+		for (var j in cleaningSteps)
+		{
+			str += '\
+                <tr><td><input type="checkbox" id="cleaningUserOption' + c + '"/ onclick="ToggleFlag (this.parentNode.parentNode.parentNode.parentNode, ' + c + ');"></td><td><label for="cleaningUserOption' + c + '">' + cleaningSteps [j] [1] + '</label></td></tr>\
+			';
+			c *= 2;
+		}
+
+        str += '\
                 <tr><td colspan="2"><div class="button" style="margin: 40pt;" onclick="cleaningDone_Click (this.parentNode.parentNode.parentNode.parentNode, ' + i + ');">Done</div></td></tr>\
             </table>\
         ';
+
+        usr_options.innerHTML = str;
+
     }
 
     ShowSubpage ("cleaningUser");
@@ -942,6 +1023,7 @@ function statUserCoffee_Click (ttl, qry, page)
     {
         var uid = parseInt (rs (0));
         var cnt = parseInt (rs (1));
+        var user_name = GetUserNameById (uid);
 
         //  Scale all values so that the biggest bar is 500px wide.
         //  Since we know that the first value is the biggest, do
@@ -954,17 +1036,6 @@ function statUserCoffee_Click (ttl, qry, page)
         }
 
         tot_cnt += cnt;
-
-        var user_name = "[Unknown User]"
-        for (var id in users)
-        {
-            if (id == uid)
-            {
-                user_name = users [id] [0];
-                user_name = user_name.replace ("<br />", " ");
-                break;
-            }
-        }
 
         str += "\
             <div class='row'>\
@@ -1024,16 +1095,7 @@ function statUserBalance_Click (ttl, page)
         var bal = parseFloat (rs (1));
         tot_bal += bal;
 
-        var user_name = "[Unknown User]"
-        for (var id in users)
-        {
-            if (id == uid)
-            {
-                user_name = users [id] [0];
-                user_name = user_name.replace ("<br />", " ");
-                break;
-            }
-        }
+        var user_name = GetUserNameById (uid);
 
         if (bal >= 0)
         {
@@ -1098,16 +1160,7 @@ function statUserCleanings_Click (ttl, page)
     while (!rs.EOF)
     {
         var uid = parseInt (rs (0));
-        var user_name = "[Unknown User]"
-        for (var id in users)
-        {
-            if (id == uid)
-            {
-                user_name = users [id] [0];
-                user_name = user_name.replace ("<br />", " ");
-                break;
-            }
-        }
+        var user_name = GetUserNameById (uid);
 
 		lstDone += "\
 			<div class='row'>\
@@ -1141,16 +1194,7 @@ function statUserCleanings_Click (ttl, page)
 
 			if (!hasCleaned)
 			{
-				var user_name = "[Unknown User]"
-				for (var id in users)
-				{
-					if (id == uid)
-					{
-						user_name = users [id] [0];
-						user_name = user_name.replace ("<br />", " ");
-						break;
-					}
-				}
+				var user_name = GetUserNameById (uid);
 				
 				lstToDo += "\
 					<div class='row'>\

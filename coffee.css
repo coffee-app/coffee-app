@@ -392,7 +392,7 @@ li
 
 .listing td
 {
-	vertical-align: middle;
+	vertical-align: top;
 	white-space: nowrap;
 }
 
