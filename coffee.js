@@ -829,7 +829,7 @@ function paymentsUserlist_Click (i)
 
 function cleaningUserlist_Click (i)
 {
-    var rs = new ActiveXObject("ADODB.Recordset");
+	var rs = new ActiveXObject("ADODB.Recordset");
 
     {
         var usr_info = document.getElementById ("cleaningUserInfo");
@@ -1074,7 +1074,8 @@ function statUserBalance_Click (ttl, page)
 {
     var rs = new ActiveXObject("ADODB.Recordset");
     var str = "<div class='barchart'><div class='title'>" + ttl + "</div>";
-    var tot_bal = 0;
+    var tot_plus = 0;
+    var tot_minus = 0;
     var has_rows = false;
     var factor = 5;
 
@@ -1093,12 +1094,11 @@ function statUserBalance_Click (ttl, page)
     {
         var uid = parseInt (rs (0));
         var bal = parseFloat (rs (1));
-        tot_bal += bal;
-
         var user_name = GetUserNameById (uid);
 
         if (bal >= 0)
         {
+	        tot_plus += bal;
             str += "\
                 <div class='row'>\
                 	<div class='label'>" + user_name + "</div>\
@@ -1112,6 +1112,7 @@ function statUserBalance_Click (ttl, page)
         }
         else
         {
+	        tot_minus += bal;
             str += "\
                 <div class='row'>\
                 	<div class='label'>" + user_name + "</div>\
@@ -1136,8 +1137,18 @@ function statUserBalance_Click (ttl, page)
         str += "\
             <div class='lastrow'>\
             	<div class='label'></div>\
+            	<div class='subtotal'>Total credit</div>\
+            	<div class='subtotal bardata'>" + FormatCurrency (tot_plus) + "</div>\
+            </div>\
+            <div class='lastrow'>\
+            	<div class='label'></div>\
+            	<div class='subtotal'>Total dept</div>\
+            	<div class='subtotal bardata'>" + FormatCurrency (tot_minus) + "</div>\
+            </div>\
+            <div class='lastrow' style='border-bottom: solid #e0e0e0 1px;'>\
+            	<div class='label'></div>\
             	<div class='total'>Total</div>\
-            	<div class='bardata' style='text-align: right;'>" + FormatCurrency (tot_bal) + "</div>\
+            	<div class='total bardata'>" + FormatCurrency (tot_plus + tot_minus) + "</div>\
             </div>\
         ";
     }
