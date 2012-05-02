@@ -113,6 +113,14 @@ function GetLongDate (d)
     return long_month [dd.getMonth ()] + " " + dd.getDate () + "<superscript>" + suffix + "</superscript>, " + dd.getFullYear ()   ;
 }
 
+function DateDiffWeek (d1, d2)
+{
+	var millisecondsPerDay = 1000 * 60 * 60 * 24;
+    var millisBetween = d2.getTime () - d1.getTime ();
+    var days = millisBetween / millisecondsPerDay;
+	return Math.floor (days / 7);
+}
+
 function DateToKw (d)
 {
 	var thisDate = new Date (d);
@@ -1244,6 +1252,7 @@ function statUserCoffeeWeek_Click (ttl)
 	//	load data
 	var firstWeek = new Date ();
 	var lastWeek = new Date ();
+	var previousWeek = new Date ();
 	var data = [];
 	{
 		var lastUid = -1;
@@ -1269,9 +1278,18 @@ function statUserCoffeeWeek_Click (ttl)
 
 				lastUid = thisUid;
 				uidWeeks = new Array ();
+				previousWeek = new Date ();
 			}
 
-			uidWeeks.push (new Array (thisWeek, parseInt (rs (3))));
+			while (DateDiffWeek (previousWeek, thisWeek) > 1)
+			{
+//				dbg.document.writeln (previousWeek + "<br />");
+				previousWeek.setDate (previousWeek.getDate () + 7);
+				uidWeeks.push (new Array (previousWeek - 24*3600000, 0.1));
+			}
+			previousWeek = thisWeek;
+
+			uidWeeks.push (new Array (thisWeek - 24*3600000, parseInt (rs (3))));
 			rs.MoveNext ();
 		}
 		rs.Close();
@@ -1285,7 +1303,9 @@ function statUserCoffeeWeek_Click (ttl)
 	var options = {
 		xaxis: { mode: "time", tickFormatter: DateToKw, tickSize: [7, "day"] },
 		series: {
-			lines: {show: true}
+			lines: { show: true, steps: true },
+//			lines: { show: true },
+			shadowSize: 0
 		},
 		legend: { backgroundOpacity: 0 },
 		selection: { mode: "x" }
@@ -1300,7 +1320,7 @@ function statUserCoffeeWeek_Click (ttl)
 	var overview = $.plot($("#overview"), data, {
 		legend: { show: false },
 		series: {
-			lines: { show: true, lineWidth: 1 },
+			lines: { show: true, steps: true, lineWidth: 1 },
 			shadowSize: 0
 		},
 		xaxis: { ticks: [] },
