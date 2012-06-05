@@ -173,6 +173,15 @@ function FormatCurrency (c)
 	return "&euro; " + parseFloat (c).toFixed (2);
 }
 
+function FindItem (arr, col, value)
+{
+	for (var idx in arr)
+	{
+		if (arr [idx] [col] == value)
+			return arr[idx];
+	}
+}
+
 function GetUserNameById (uid)
 {
 	for (var id in all_users)
@@ -733,6 +742,27 @@ function bookingUserlist_Click (i)
             }
             rs.Close();
         }
+
+		{
+			total_price = 0;
+	        rs.Open ("select PID, TotalBookings, TotalPrice FROM by_StatUserBookings30d WHERE UID=" + i, cn);
+	        if (!rs.EOF)
+	        {
+	        	var total_price = 0;
+                while (!rs.EOF)
+                {
+					total_price += parseFloat (rs (2));
+                    rs.MoveNext ();
+                }
+                str += "\
+                <tr>\
+                    <td><b>Last month total</b></td><td align='center'></td><td align='right'><b>" + FormatCurrency (parseFloat (total_price).toFixed (2)) + "</b></td><td align='right'></td>\
+                </tr>\
+                    ";
+            }
+            rs.Close();
+
+		}
 
         {
             //  load last payment
