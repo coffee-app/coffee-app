@@ -29,22 +29,22 @@ var allowClicks = true;
 //setInterval ("dbg.document.body.scrollTop += 100", 1000);
 
 var users = Array (
-	//	Index is equal to the UID
+    //  Index is equal to the UID
     //     Name, Image, Balance, Small Image
 );
 
 var all_users = Array (
-	//	Index is equal to the UID
-    //     Name
+    //  Index is equal to the UID
+    //     Name, 30d Shoppings
 );
 
 var products = Array (
-	//	Index is equal to the PID
+    //  Index is equal to the PID
     //     Name, Image, Price
 );
 
 var all_products = Array (
-	//	Index is equal to the PID
+    //  Index is equal to the PID
     //     Name, Image, Price
 );
 
@@ -187,7 +187,7 @@ function GetUserNameById (uid)
 	for (var id in all_users)
 	{
 		if (id == uid)
-			return all_users [id];
+			return all_users [id] [0];
 	}
 
 	return "[Unknown User]";
@@ -223,11 +223,22 @@ function RGB (val)
 	return "#" + "000000".substr (0, 6 - col.length) + col;
 }
 
-function BalanceColor(bal)
+function BalanceSize (bal, monthly_bookings)
 {
-	//	range color from -10 Euro to +15 Euro
-	var minBal = -8;
-	var maxBal = +15;
+	var sz = Math.min(-Math.min (bal - 3, 0),20) + 14;
+
+	//	range color from -5 Euro to +5 Euro around monthly bookings amount
+	var maxBal = monthly_bookings;
+	var minBal = maxBal - 10;
+
+	return 14 + (Math.pow(1-(Math.max (minBal, Math.min (bal, maxBal)) - minBal) / (maxBal - minBal), 2)) * 40;
+}
+
+function BalanceColor (bal, monthly_bookings)
+{
+	//	range color from -5 Euro to +5 Euro around monthly bookings amount
+	var minBal = monthly_bookings - 5;
+	var maxBal = minBal + 10;
 
 	var halfRange = (maxBal - minBal) / 2;
 	var midBal = (maxBal + minBal) / 2;
@@ -321,10 +332,25 @@ function FillStdUserInfo (id, div)
     div.firstChild.firstChild.src = users [id] [3];
 
     var bal = users [id] [2];
-	var sz = Math.min(-Math.min (bal - 3, 0),20) + 14; //	range size from +3 Euro to -inf Euro
+    var shoppings = all_users [id] [1];
+
+	var html = "<table class='listing'><tr><th colspan='2'>&nbsp;</th></tr>" +
+		"<tr>" +
+			"<td align='left'>Balance</td>" + 
+			"<td align='right'>" + 
+				"<span style='color: " + BalanceColor(bal, shoppings) + "; font-size: " + BalanceSize (bal, shoppings) + "pt; font-weight: " + (bal < 0 ? "bold" : "normal") + "'>" + FormatCurrency (bal) + "</span>" + 
+			"</td>" + 
+		"</tr>" + 
+		(
+			(bal < shoppings - 1) ?
+			("<tr><td colspan='2'>&nbsp;</td></tr><tr>" + 
+				"<td align='right' colspan='2'>Consider a payment of at least " + 	FormatCurrency (Math.ceil((shoppings - bal) / 5) * 5) + "</td>" + 
+			"</tr>") : ""
+		) + 
+		"</table>";
 
     var tbl = document.createElement ("div");
-    tbl.innerHTML = "<table class='listing'><tr><th colspan='2'>&nbsp;</th></tr><tr><td align='left'>Balance</td><td align='right'><span style='color: " + BalanceColor(bal) + "; font-size: " + sz + "pt; font-weight: " + (bal < 0 ? "bold" : "normal") + "'>" + FormatCurrency (bal) + "</span></td></tr></table>";
+    tbl.innerHTML = html;
     div.appendChild (tbl);
 }
 
@@ -378,7 +404,7 @@ function AddUserBalance (div, id)
 
     var overlay = document.createElement('div');
     {
-    	overlay.setAttribute ("style", "position: absolute; width: 100%; text-align: right; color: " + BalanceColor(users [id] [2]) + ";");
+    	overlay.setAttribute ("style", "position: absolute; width: 100%; text-align: right; color: " + BalanceColor(users [id] [2], all_users [id] [1]) + ";");
     	overlay.innerHTML = FormatCurrency (users [id] [2]);
     }
     a.insertBefore (overlay, a.childNodes [0]);
@@ -506,7 +532,7 @@ window.onload = function ()
     	if (String (rs(2)) != "")
     		user_name += " " + rs (2);
 
-        all_users [parseInt (rs (0))] = user_name;
+        all_users [parseInt (rs (0))] = new Array (user_name, 0);
         rs.MoveNext ();
     }
     rs.Close();
@@ -530,6 +556,17 @@ window.onload = function ()
         rs.MoveNext ();
     }
     rs.Close ();
+
+	//	load monthly bookings for all users
+	{
+		rs.Open ("select UID, TotalPrice FROM by_StatUserBookings30d", cn);
+		while (!rs.EOF)
+		{
+			all_users [parseInt (rs (0))] [1] += parseFloat (rs (1));
+			rs.MoveNext ();
+		}
+		rs.Close();
+	}
 
 	UpdateTime ();
 	window.setInterval ("UpdateTime ();", 60000);
@@ -702,7 +739,7 @@ function bookingUserlist_Click (i)
                 <td>Product</td><td align='center'>#</td><td align='right'>Total</td><td align='right'>Last booked</td>\
             </tr>";
         {
-            //  load users
+            //  load bookings
 	        rs.Open ("select PID, TotalBookings, TotalPrice, LastBooked FROM by_UserBookings WHERE UID=" + i, cn);
 	        if (rs.EOF)
 	        {
@@ -761,7 +798,7 @@ function bookingUserlist_Click (i)
                     ";
             }
             rs.Close();
-
+            all_users [i] [1] = total_price;
 		}
 
         {
